@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 💳 CrediPulse Bharat AI - Credit Score Prediction Engine (₹ INR)
 
 An enterprise-grade Machine Learning credit rating system and web application tailored for Indian Rupee (**₹ INR**) financial profiles. Built with a high-accuracy **Tuned LightGBM** model achieving **78.91% Accuracy** across 46 engineered financial features.
@@ -109,3 +110,6 @@ c:\Users\Ishwar\Downloads\credit\
 ├── train.csv                <- 100,000 training records
 └── test.csv                 <- 50,000 evaluation records
 ```
+=======
+# Credit-score-prediction
+>>>>>>> 27e8021fba580104c0395698d8441f237e239f62
