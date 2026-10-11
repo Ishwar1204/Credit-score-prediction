@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrediPulse AI - Credit Score Prediction System (Ishwar Kumavat)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="text-gray-100 flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <header class="navbar px-6 py-4 flex flex-wrap justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-600 to-blue-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <i class="fas fa-shield-alt text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-xl tracking-tight text-white flex items-center gap-2">
+                    CrediPulse <span class="text-emerald-400 text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 font-semibold tracking-normal">AI v2.0</span>
+                </h1>
+                <p class="text-xs text-gray-400">High-Precision Credit Risk & Rating System (₹ INR)</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center space-x-2 sm:space-x-3 mt-3 sm:mt-0 text-sm">
+            <button class="tab-btn active px-3.5 py-2 font-medium text-gray-300 hover:text-white flex items-center gap-1.5" data-tab="tab-predict">
+                <i class="fas fa-calculator text-emerald-400"></i> <span>Live Predictor</span>
+            </button>
+            <button class="tab-btn px-3.5 py-2 font-medium text-gray-300 hover:text-white flex items-center gap-1.5" data-tab="tab-batch">
+                <i class="fas fa-file-csv text-blue-400"></i> <span>Batch Inference</span>
+            </button>
+            <button class="tab-btn px-3.5 py-2 font-medium text-gray-300 hover:text-white flex items-center gap-1.5" data-tab="tab-insights">
+                <i class="fas fa-chart-line text-purple-400"></i> <span>Model Analytics</span>
+            </button>
+        </nav>
+
+        <div class="hidden lg:flex items-center gap-3">
+            <span class="inline-flex items-center text-xs px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-medium">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span> LightGBM Active (78.91% Acc)
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-7xl">
+
+        <!-- TAB 1: LIVE ASSESSMENT -->
+        <section id="tab-predict" class="tab-content">
+            <!-- Preset Bar -->
+            <div class="glass-panel p-4 mb-8 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <i class="fas fa-magic text-emerald-400"></i>
+                    <span class="font-medium text-gray-300">Quick Test Profiles (Good / Average / Bad | ₹ INR):</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="preset-btn px-3.5 py-1.5 rounded-lg text-xs font-medium" data-preset="prime">
+                        🌟 Prime Borrower (Good)
+                    </button>
+                    <button type="button" class="preset-btn px-3.5 py-1.5 rounded-lg text-xs font-medium" data-preset="standard">
+                        ⚖️ Average Borrower (Average)
+                    </button>
+                    <button type="button" class="preset-btn px-3.5 py-1.5 rounded-lg text-xs font-medium" data-preset="subprime">
+                        🚨 High Risk Borrower (Bad)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Assessment Form (Left 7 Cols) -->
+                <div class="lg:col-span-7 space-y-6">
+                    <form id="prediction-form" class="space-y-6">
+                        
+                        <!-- Section 1: Personal & Income -->
+                        <div class="glass-panel p-6 space-y-4">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                                <i class="fas fa-user-circle"></i> 1. Personal & Employment Profile
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Age (Years)</label>
+                                    <input type="number" id="Age" class="form-input" min="18" max="100" value="31" required>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Occupation</label>
+                                    <select id="Occupation" class="form-select">
+                                        <option value="Engineer" selected>Engineer</option>
+                                        <option value="Doctor">Doctor</option>
+                                        <option value="Scientist">Scientist</option>
+                                        <option value="Teacher">Teacher</option>
+                                        <option value="Lawyer">Lawyer</option>
+                                        <option value="Accountant">Accountant</option>
+                                        <option value="Architect">Architect</option>
+                                        <option value="Developer">Developer</option>
+                                        <option value="Media_Manager">Media Manager</option>
+                                        <option value="Journalist">Journalist</option>
+                                        <option value="Entrepreneur">Entrepreneur</option>
+                                        <option value="Unknown">Other / Professional</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Annual Income (₹)</label>
+                                    <input type="number" id="Annual_Income" class="form-input" min="10000" max="100000000" step="10000" value="720000" required>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Monthly In-hand Salary (₹)</label>
+                                    <input type="number" id="Monthly_Inhand_Salary" class="form-input" min="1000" max="10000000" step="1000" value="55000" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Banking & Liabilities -->
+                        <div class="glass-panel p-6 space-y-4">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-teal-400 flex items-center gap-2">
+                                <i class="fas fa-university"></i> 2. Banking, Cards & Liabilities
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Bank Accounts</label>
+                                    <input type="number" id="Num_Bank_Accounts" class="form-input" min="0" max="30" value="3" required>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Credit Cards</label>
+                                    <input type="number" id="Num_Credit_Card" class="form-input" min="0" max="30" value="4" required>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Interest Rate (%)</label>
+                                    <input type="number" id="Interest_Rate" class="form-input" min="1" max="50" step="0.5" value="12.0" required>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Outstanding Debt (₹)</label>
+                                    <input type="number" id="Outstanding_Debt" class="form-input" min="0" max="50000000" step="1000" value="45000" required>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Changed Credit Limit (₹)</label>
+                                    <input type="number" id="Changed_Credit_Limit" class="form-input" min="-100000" max="500000" step="1000" value="12000">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Credit History & Repayment -->
+                        <div class="glass-panel p-6 space-y-4">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                                <i class="fas fa-history"></i> 3. Credit History & Payment Performance
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                <div class="flex gap-2">
+                                    <div class="w-1/2">
+                                        <label class="block text-gray-300 text-xs mb-1">History (Years)</label>
+                                        <input type="number" id="credit_history_years" class="form-input" min="0" max="50" value="8">
+                                    </div>
+                                    <div class="w-1/2">
+                                        <label class="block text-gray-300 text-xs mb-1">Months</label>
+                                        <input type="number" id="credit_history_months" class="form-input" min="0" max="11" value="6">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Credit Mix Quality</label>
+                                    <select id="Credit_Mix" class="form-select">
+                                        <option value="Good">Good (Diversified)</option>
+                                        <option value="Standard" selected>Standard (Acceptable)</option>
+                                        <option value="Bad">Bad (High Risk)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Delay from Due Date (Days)</label>
+                                    <input type="number" id="Delay_from_due_date" class="form-input" min="0" max="60" value="4">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Delayed Payments Count</label>
+                                    <input type="number" id="Num_of_Delayed_Payment" class="form-input" min="0" max="60" value="3">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Recent Bureau Inquiries</label>
+                                    <input type="number" id="Num_Credit_Inquiries" class="form-input" min="0" max="40" value="2">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Credit Utilization Ratio (%)</label>
+                                    <input type="number" id="Credit_Utilization_Ratio" class="form-input" min="0" max="100" step="0.5" value="28.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 4: Budget, EMIs & Active Loans -->
+                        <div class="glass-panel p-6 space-y-4">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
+                                <i class="fas fa-wallet"></i> 4. Cash Flow, EMI & Active Loans (₹ INR)
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Total Monthly EMI (₹)</label>
+                                    <input type="number" id="Total_EMI_per_month" class="form-input" min="0" max="1000000" step="500" value="14000">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Amount Invested Monthly (₹)</label>
+                                    <input type="number" id="Amount_invested_monthly" class="form-input" min="0" max="1000000" step="500" value="10000">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Monthly Balance / Savings (₹)</label>
+                                    <input type="number" id="Monthly_Balance" class="form-input" min="0" max="1000000" step="500" value="16000">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 text-xs mb-1">Payment of Minimum Dues Only?</label>
+                                    <select id="Payment_of_Min_Amount" class="form-select">
+                                        <option value="No" selected>No (Pays Full / Higher)</option>
+                                        <option value="Yes">Yes (Pays Minimum Dues Only)</option>
+                                        <option value="Unknown">Unknown</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-300 text-xs mb-1">Payment Behaviour Classification</label>
+                                <select id="Payment_Behaviour" class="form-select">
+                                    <option value="Low_spent_Small_value_payments" selected>Low spent, Small value payments</option>
+                                    <option value="Low_spent_Medium_value_payments">Low spent, Medium value payments</option>
+                                    <option value="Low_spent_Large_value_payments">Low spent, Large value payments</option>
+                                    <option value="High_spent_Small_value_payments">High spent, Small value payments</option>
+                                    <option value="High_spent_Medium_value_payments">High spent, Medium value payments</option>
+                                    <option value="High_spent_Large_value_payments">High spent, Large value payments</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-300 text-xs mb-2">Active Loan Products</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                    <label class="flex items-center space-x-2 bg-gray-900/60 p-2 rounded border border-gray-800 cursor-pointer">
+                                        <input type="checkbox" name="loans" value="Auto Loan" class="rounded text-emerald-500 focus:ring-0" checked>
+                                        <span>Auto Loan</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 bg-gray-900/60 p-2 rounded border border-gray-800 cursor-pointer">
+                                        <input type="checkbox" name="loans" value="Personal Loan" class="rounded text-emerald-500 focus:ring-0" checked>
+                                        <span>Personal Loan</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 bg-gray-900/60 p-2 rounded border border-gray-800 cursor-pointer">
+                                        <input type="checkbox" name="loans" value="Home Equity Loan" class="rounded text-emerald-500 focus:ring-0">
+                                        <span>Home Loan</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 bg-gray-900/60 p-2 rounded border border-gray-800 cursor-pointer">
+                                        <input type="checkbox" name="loans" value="Mortgage Loan" class="rounded text-emerald-500 focus:ring-0">
+                                        <span>Mortgage</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 bg-gray-900/60 p-2 rounded border border-gray-800 cursor-pointer">
+                                        <input type="checkbox" name="loans" value="Student Loan" class="rounded text-emerald-500 focus:ring-0">
+                                        <span>Education Loan</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 bg-gray-900/60 p-2 rounded border border-gray-800 cursor-pointer">
+                                        <input type="checkbox" name="loans" value="Debt Consolidation Loan" class="rounded text-emerald-500 focus:ring-0">
+                                        <span>Debt Consol.</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 bg-gray-900/60 p-2 rounded border border-gray-800 cursor-pointer">
+                                        <input type="checkbox" name="loans" value="Credit-Builder Loan" class="rounded text-emerald-500 focus:ring-0">
+                                        <span>Credit Builder</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 bg-gray-900/60 p-2 rounded border border-gray-800 cursor-pointer">
+                                        <input type="checkbox" name="loans" value="Payday Loan" class="rounded text-emerald-500 focus:ring-0">
+                                        <span>Short-Term Loan</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btn-submit-predict" class="btn-primary w-full py-4 text-base flex items-center justify-center gap-2">
+                            <i class="fas fa-brain"></i> Classify Credit Category (Good / Average / Bad)
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Prediction Results Dashboard (Right 5 Cols) -->
+                <div class="lg:col-span-5">
+                    <div class="sticky top-24 space-y-6">
+                        
+                        <div id="result-card" class="glass-panel p-6 space-y-6">
+                            <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Classification Result</span>
+                                <span id="result-score-badge" class="badge-standard px-3 py-1 rounded-full text-xs font-bold">
+                                    AVERAGE CREDIT
+                                </span>
+                            </div>
+
+                            <!-- Circular Meter & CIBIL score badge -->
+                            <div class="flex flex-col items-center justify-center py-2">
+                                <div class="relative w-44 h-44 flex items-center justify-center">
+                                    <svg class="gauge-svg w-full h-full" viewBox="0 0 100 100">
+                                        <circle class="gauge-bg" cx="50" cy="50" r="42" stroke-width="8" fill="none" />
+                                        <circle id="gauge-fill-path" class="gauge-fill" cx="50" cy="50" r="42" stroke-width="8" stroke="#f59e0b" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round" fill="none" />
+                                    </svg>
+                                    <div class="absolute flex flex-col items-center justify-center text-center">
+                                        <span id="result-score-title" class="text-2xl font-extrabold tracking-tight">AVERAGE</span>
+                                        <span id="gauge-percentage-text" class="text-xs text-gray-400 font-medium">75% Conf.</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3 px-3 py-1 bg-gray-900/90 rounded-full border border-gray-800 text-xs font-semibold text-gray-300">
+                                    Estimated CIBIL Scale: <span id="cibil-score-value" class="text-emerald-400 font-bold font-mono">720 / 900</span>
+                                </div>
+                            </div>
+
+                            <p id="result-score-desc" class="text-xs text-gray-300 text-center leading-relaxed">
+                                Acceptable repayment behavior with standard credit terms.
+                            </p>
+
+                            <!-- Financial Health Ratios (EMI, Utilization, Debt Burden) -->
+                            <div class="border-t border-gray-800 pt-4 space-y-3">
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Key Financial Health Ratios</h4>
+                                
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-gray-400">EMI Burden (% of In-hand Salary)</span>
+                                        <span id="val-emi-burden" class="font-mono text-emerald-400 font-semibold">25%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                                        <div id="bar-emi-burden" class="h-2 rounded-full bg-emerald-500" style="width: 25%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-gray-400">Credit Card Utilization (% Limit)</span>
+                                        <span id="val-card-util" class="font-mono text-amber-400 font-semibold">28%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                                        <div id="bar-card-util" class="h-2 rounded-full bg-amber-500" style="width: 28%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-gray-400">Debt-to-Annual-Income Ratio</span>
+                                        <span id="val-debt-burden" class="font-mono text-blue-400 font-semibold">6%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                                        <div id="bar-debt-burden" class="h-2 rounded-full bg-blue-500" style="width: 6%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Probabilities Breakdown Chart -->
+                            <div class="border-t border-gray-800 pt-4">
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Class Confidence Distribution</h4>
+                                <div class="h-28">
+                                    <canvas id="probChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Risk Flags & Recommendations -->
+                            <div class="border-t border-gray-800 pt-4 space-y-2">
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Risk Factors & Advice (₹ INR)</h4>
+                                <div id="result-recommendations" class="space-y-2">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: BATCH EVALUATION -->
+        <section id="tab-batch" class="tab-content hidden space-y-8">
+            <div class="glass-panel p-8 text-center max-w-3xl mx-auto space-y-6">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl">
+                    <i class="fas fa-file-csv"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Batch Credit Risk Inference (Good / Average / Bad)</h2>
+                    <p class="text-sm text-gray-400 mt-1">Classify thousands of customer profiles simultaneously.</p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                    <button id="btn-run-default-batch" type="button" class="btn-primary w-full sm:w-auto px-6 py-3 text-sm flex items-center justify-center gap-2">
+                        <i class="fas fa-bolt"></i> Evaluate Built-in test.csv (Preview 5,000)
+                    </button>
+                    <span class="text-xs text-gray-500">OR</span>
+                    <form id="batch-upload-form" class="w-full sm:w-auto flex items-center gap-2">
+                        <label class="cursor-pointer px-4 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-semibold rounded-lg border border-gray-700 transition">
+                            <i class="fas fa-folder-open mr-1"></i> Choose CSV
+                            <input type="file" id="batch-file-input" accept=".csv" class="hidden">
+                        </label>
+                        <button type="submit" id="btn-batch-submit" class="px-4 py-3 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold rounded-lg shadow">
+                            Upload & Predict
+                        </button>
+                    </form>
+                </div>
+
+                <div id="batch-status" class="hidden py-4 text-emerald-400 text-sm flex items-center justify-center gap-2">
+                    <i class="fas fa-circle-notch fa-spin"></i> Processing records through Trained Machine Learning Models...
+                </div>
+            </div>
+
+            <!-- Batch Results Table & Summary -->
+            <div id="batch-results" class="hidden space-y-6">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="glass-panel p-4 text-center">
+                        <span class="text-xs text-gray-400">Total Scored</span>
+                        <p id="batch-total-count" class="text-2xl font-extrabold text-white mt-1">0</p>
+                    </div>
+                    <div class="glass-panel p-4 text-center border-l-4 border-emerald-500">
+                        <span class="text-xs text-emerald-400">Good (Prime)</span>
+                        <p id="batch-count-good" class="text-2xl font-extrabold text-emerald-400 mt-1">0</p>
+                    </div>
+                    <div class="glass-panel p-4 text-center border-l-4 border-amber-500">
+                        <span class="text-xs text-amber-400">Average</span>
+                        <p id="batch-count-standard" class="text-2xl font-extrabold text-amber-400 mt-1">0</p>
+                    </div>
+                    <div class="glass-panel p-4 text-center border-l-4 border-red-500">
+                        <span class="text-xs text-red-400">Bad (High Risk)</span>
+                        <p id="batch-count-poor" class="text-2xl font-extrabold text-red-400 mt-1">0</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 space-y-4">
+                    <div class="flex flex-wrap justify-between items-center gap-4">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fas fa-table text-emerald-400"></i> Predictions Preview (First 50 Rows)
+                        </h3>
+                        <form method="POST" action="/api/download-batch">
+                            <input type="hidden" name="csv_data" id="download-csv-data">
+                            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-2 transition">
+                                <i class="fas fa-download"></i> Download Full Predictions CSV
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-96">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-gray-800 text-xs font-semibold text-gray-400 uppercase bg-gray-900/60 sticky top-0">
+                                    <th class="px-4 py-3">Customer ID</th>
+                                    <th class="px-4 py-3">Category</th>
+                                    <th class="px-4 py-3">Good %</th>
+                                    <th class="px-4 py-3">Average %</th>
+                                    <th class="px-4 py-3">Bad %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-table-body" class="text-sm divide-y divide-gray-800">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: MODEL INSIGHTS -->
+        <section id="tab-insights" class="tab-content hidden space-y-8">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="glass-panel p-6 border-l-4 border-emerald-500">
+                    <span class="text-xs uppercase font-bold text-gray-400">Top Model Validation Accuracy</span>
+                    <p id="metric-accuracy" class="text-3xl font-extrabold text-white mt-1">78.91%</p>
+                    <span class="text-xs text-emerald-400 mt-2 block">Trained across 80,000 samples, validated on 20,000</span>
+                </div>
+                <div class="glass-panel p-6 border-l-4 border-teal-500">
+                    <span class="text-xs uppercase font-bold text-gray-400">Macro F1-Score</span>
+                    <p id="metric-macro-f1" class="text-3xl font-extrabold text-white mt-1">0.7762</p>
+                    <span class="text-xs text-teal-400 mt-2 block">Balanced performance on Good, Average, and Bad</span>
+                </div>
+                <div class="glass-panel p-6 border-l-4 border-blue-500">
+                    <span class="text-xs uppercase font-bold text-gray-400">Weighted F1-Score</span>
+                    <p id="metric-weighted-f1" class="text-3xl font-extrabold text-white mt-1">0.7890</p>
+                    <span class="text-xs text-blue-400 mt-2 block">High precision across all borrower segments</span>
+                </div>
+            </div>
+
+            <!-- Architecture Comparison & Feature Importances -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Feature Importances Chart -->
+                <div class="lg:col-span-7 glass-panel p-6 space-y-4">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-trophy text-amber-400"></i> Top 15 Predictive Features
+                    </h3>
+                    <p class="text-xs text-gray-400">Financial features with greatest weight in classifying credit scores.</p>
+                    <div class="h-96">
+                        <canvas id="featureChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Comparative Benchmark Table (All Report Models) -->
+                <div class="lg:col-span-5 glass-panel p-6 space-y-4">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-layer-group text-emerald-400"></i> Comparative Algorithm Evaluation
+                    </h3>
+                    <p class="text-xs text-gray-400">Evaluation across the 4 ML Report algorithms + LightGBM.</p>
+                    <div class="overflow-x-auto text-xs">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-gray-800 text-gray-400 uppercase">
+                                    <th class="py-2.5 px-3">Model</th>
+                                    <th class="py-2.5 px-3">Accuracy</th>
+                                    <th class="py-2.5 px-3">Precision</th>
+                                    <th class="py-2.5 px-3">Recall</th>
+                                    <th class="py-2.5 px-3">Macro F1</th>
+                                </tr>
+                            </thead>
+                            <tbody id="benchmark-table-body" class="divide-y divide-gray-800">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Integration API Snippet -->
+                    <div class="border-t border-gray-800 pt-4 space-y-2">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase">REST API Integration</h4>
+                        <div class="bg-gray-950 p-3 rounded-lg border border-gray-800 text-xs font-mono text-gray-300 overflow-x-auto">
+                            <code>curl -X POST http://localhost:5000/api/predict \<br>
+                            &nbsp;&nbsp;-H "Content-Type: application/json" \<br>
+                            &nbsp;&nbsp;-d '{"Age": 31, "Annual_Income": 720000, ...}'</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-gray-800/80 py-6 text-center text-xs text-gray-500">
+        <p>CrediPulse AI &bull; Production Credit Rating Engine (₹ INR) &bull; Built with Flask & High-Performance Machine Learning Models</p>
+    </footer>
+
+    <!-- Main JS Application -->
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
